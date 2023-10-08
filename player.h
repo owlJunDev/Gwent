@@ -1,27 +1,25 @@
-class Player {
-    private:
-        std::string name;
-        sf::RectangleShape icon;
-        Fruction fruction;
+class Player
+{
+private:
+    Fruction fruction;
+    Fruction sFruction;
+    std::string name;
+    std::string path;
+    sf::RectangleShape iconPlayer;
+public:
+    Player();
+    ~Player();
 
-    public:
-        Player () {}       
-        Player (std::string name, Fruction fruction)  {
-            this->name = name;
-            this->fruction = fruction;
-            sf::Texture texture;
-            texture.loadFromFile("assets\\logo.png");
-        }
-        void initPlayer (std::string name, Fruction fruction)  {
-            this->name = name;
-            this->fruction = fruction;
-            sf::Texture texture;
-            texture.loadFromFile("assets\\logo.png");
-        }
+    void setName(std::string name);
+    void setPath(std::string path);
+    void setFruction(Fruction fruction);
+    void saveFruction();
 
-        std::string getName() { return name; }
-        int getFruction() { return int(fruction); };
+    void uploadSave();
+    void loadSave();
 
-        void setName(std::string name){ this->name = name; }
-        void setFruction (Fruction fruction) { this->fruction = fruction; }
+    std::string getName();
+    std::string getPath();
+    Fruction getFruction();
+    Fruction getSaveFruction();
 };

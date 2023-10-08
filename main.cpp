@@ -1,80 +1,79 @@
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Network.hpp>
-#include <SFML/Main.hpp>
 
+#include <vector>
 #include <iostream>
 #include <fstream>
-#include <Windows.h>
-#include <conio.h>
-#include <thread>
-#include <chrono>
-#include <list>
-#include <time.h>
-#include <string>
+#include <io.h>
+#include <stdio.h>
 
-#include "main_settings.h"
-
-#include "menuScreen.h"
-#include "gameScreen.h"
-#include "cardScreen.h"
-#include "selectScreen.h"
-
-void uploadData(Decks &deck, Player &player)
+enum ScreenType
 {
-	deck.init("assets/card.txt", player);
-	// deck.info();
-}
+    MENU,
+    GAME,
+    CARD
+};
+enum Position
+{
+    KING,
+    ALL,
+    SHORT,
+    MID,
+    LONG
+};
+enum Fruction
+{
+    NEUTRAL,
+    NILFGAARD,
+    KINGDOMNORTH
+};
+
+#include "interface.cpp"
+#include "Player.cpp"
+#include "Deck.cpp"
+#include "Screen.cpp"
 
 int main()
 {
 	setlocale(LC_ALL, "");
-	// FreeConsole();
-	std::thread th(uploadData, std::ref(decks), std::ref(player));
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "Gwent");
+    sf::Image icon;
+    ScreenType screenT = ScreenType::MENU;
+    window.setPosition(sf::Vector2i(1930, 0));
+    // window.setFramerateLimit();
 
-	sf::RenderWindow window(sf::VideoMode(winWidth, winHeight), "The Gwent");
-	window.setFramerateLimit(60);
-	sf::View view;
-	view.setCenter(window.getSize().x / 2, window.getSize().y / 2);
-	int winWidth = screenWidth, winHeight = screenHeight;
+    if (icon.loadFromFile("assets/icon.png"))
+        window.setIcon(256, 256, icon.getPixelsPtr());
 
-	Screen screen = Screen::MENU;
+    Player player;
 
-	srand(time(NULL));
+    Screen *screen = new MenuScreen();
+    screen->setPlayer(player);
 
-	th.join();
-	decks.info();
+    do
+    {
+        sf::Event event;
+        if (screenT != screen->getScreen())
+        {
+            screenT = screen->getScreen();
+            screen->getPlayer(player);
+            switch (screenT)
+            {
+            case ScreenType::MENU:
+                screen = new MenuScreen();
+                break;
+            case ScreenType::GAME:
+                screen = new GameScreen();
+                break;
+            case ScreenType::CARD:
+                screen = new CardScreen(player.getFruction(), window);
+            }
+            screen->setPlayer(player);
+        }
+        screen->isEvent(window, event);
+        window.clear(sf::Color(0, 0, 0, 0));
+        screen->draw(window);
+        window.display();
+    } while (!screen->isEnd() && window.isOpen());
 
-	do
-	{
-		switch (screen)
-		{
-		case Screen::MENU:
-			std::cout << "\nlog: menu: start in";
-			menu::screen(window, view, screen);
-			std::cout << "\nlog: menu: out\n";
-			break;
-		case Screen::GAME:
-			std::cout << "\nlog: game: start in";
-			game::screen(window, view, screen);
-			std::cout << "\nlog: game: out\n";
-			break;
-		case Screen::CARD:
-			std::cout << "\nlog: card: start in";
-			card::screen(window, view, screen);
-			std::cout << "\nlog: card: out\n";
-			break;
-		case Screen::SELECT:
-			std::cout << "\nlog: card: start in";
-			fruct::screen(window, view, screen);
-			std::cout << "\nlog: card: out\n";
-			break;
-		}
-	} while (screen != Screen::END);
-	decks.info();
-
-	decks.~Decks();
-	std::cout << "\nlog: end process";
-
-	return 0;
+    return 0;
 }

@@ -7,6 +7,8 @@ namespace fruct
 
     void screen(sf::RenderWindow &win, sf::View &view, Screen &screen)
     {
+
+
         while (win.isOpen())
         {
             sf::Event event;
